@@ -77,6 +77,12 @@ class Mission:
     @classmethod
     def from_csv(cls, file_name: str):
         df = pd.read_csv(file_name)
+
+        required = {'reference', 'cave_height', 'cave_depth'}
+        present = set(df.columns)
+        missing = required - present
+        if missing:
+            raise ValueError(f"CSV file is missing required columns: {missing}")
         return cls(df['reference'].to_numpy(), df['cave_height'].to_numpy(), df['cave_depth'].to_numpy())
 
 class ClosedLoop:
