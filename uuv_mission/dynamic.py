@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from .terrain import generate_reference_and_limits
 import pandas as pd
+from .control import PDController
 
 class Submarine:
     def __init__(self):
@@ -86,7 +87,7 @@ class Mission:
         return cls(df['reference'].to_numpy(), df['cave_height'].to_numpy(), df['cave_depth'].to_numpy())
 
 class ClosedLoop:
-    def __init__(self, plant: Submarine, controller):
+    def __init__(self, plant: Submarine, controller: PDController):
         self.plant = plant
         self.controller = controller
 
@@ -104,6 +105,8 @@ class ClosedLoop:
             positions[t] = self.plant.get_position()
             observation_t = self.plant.get_depth()
             # Call your controller here
+            action_t = self.controller.control(mission.reference[t], observation_t)
+            actions[t] = action_t
             self.plant.transition(actions[t], disturbances[t])
 
         return Trajectory(positions)
